@@ -47,6 +47,11 @@ export default function Report() {
       return;
     }
 
+    if (!formData.location.trim() || !formData.description.trim()) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -63,18 +68,29 @@ export default function Report() {
       await addDoc(collection(db, 'reports'), {
         userId: user.uid,
         userName: userData?.name || 'Anonymous',
-        location: formData.location,
-        description: formData.description,
+        userEmail: user.email || '',
+        location: formData.location.trim(),
+        description: formData.description.trim(),
         photoURL,
         status: 'pending',
-        createdAt: new Date().toISOString()
+        rating: null,
+        feedback: null,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       });
 
       toast.success(t('reportSubmitted'));
+      setFormData({ location: '', description: '' });
+      setImageFile(null);
+      setImagePreview('');
       navigate('/dashboard');
     } catch (error: any) {
       console.error('Submit error:', error);
-      toast.error(error.message || t('error'));
+      if (error.code === 'permission-denied') {
+        toast.error('Permission denied. Please check Firestore security rules.');
+      } else {
+        toast.error(error.message || t('error'));
+      }
     } finally {
       setLoading(false);
     }

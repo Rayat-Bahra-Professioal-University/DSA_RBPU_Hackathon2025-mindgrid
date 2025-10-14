@@ -12,7 +12,8 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const toggleLanguage = () => {
-    const newLang = i18n.language === 'en' ? 'hi' : 'en';
+    const currentLang = i18n.language;
+    const newLang = currentLang === 'en' ? 'hi' : currentLang === 'hi' ? 'pa' : 'en';
     i18n.changeLanguage(newLang);
   };
 
@@ -61,7 +62,7 @@ export default function Navbar() {
               className="gap-2"
             >
               <Globe className="w-5 h-5" />
-              {i18n.language === 'en' ? 'हिंदी' : 'English'}
+              {i18n.language === 'en' ? 'हिंदी' : i18n.language === 'hi' ? 'ਪੰਜਾਬੀ' : 'English'}
             </Button>
 
             {user ? (
@@ -119,7 +120,7 @@ export default function Navbar() {
               className="w-full justify-start gap-2"
             >
               <Globe className="w-5 h-5" />
-              {i18n.language === 'en' ? 'हिंदी' : 'English'}
+              {i18n.language === 'en' ? 'हिंदी' : i18n.language === 'hi' ? 'ਪੰਜਾਬੀ' : 'English'}
             </Button>
 
             {user ? (

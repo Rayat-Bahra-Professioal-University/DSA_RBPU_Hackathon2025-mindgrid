@@ -2,13 +2,16 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
-import { collection, query, where, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Trash2, Edit, Plus } from 'lucide-react';
+import { MapPin, Trash2, Edit, Plus, Star, MessageSquare, Bell } from 'lucide-react';
 import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 
 interface Report {
   id: string;
@@ -17,6 +20,9 @@ interface Report {
   status: 'pending' | 'inProgress' | 'fixed';
   photoURL?: string;
   createdAt: string;
+  rating?: number | null;
+  feedback?: string | null;
+  statusNotificationSent?: boolean;
 }
 
 export default function Dashboard() {
@@ -25,6 +31,9 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
+  const [feedbackDialog, setFeedbackDialog] = useState<string | null>(null);
+  const [feedbackForm, setFeedbackForm] = useState({ rating: 0, feedback: '' });
+  const [notifications, setNotifications] = useState<string[]>([]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -34,35 +43,62 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (user) {
-      fetchReports();
+      // Real-time listener for reports
+      const q = query(collection(db, 'reports'), where('userId', '==', user.uid));
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const reportsData = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Report[];
+        
+        // Check for status changes and show notifications
+        reportsData.forEach(report => {
+          if (report.status === 'fixed' && !report.statusNotificationSent) {
+            toast.success(`Your report at "${report.location}" has been fixed! 🎉`);
+            setNotifications(prev => [...prev, `Report at "${report.location}" marked as fixed`]);
+            // Mark notification as sent
+            updateDoc(doc(db, 'reports', report.id), { statusNotificationSent: true });
+          }
+        });
+        
+        setReports(reportsData);
+        setLoading(false);
+      }, (error) => {
+        console.error('Real-time error:', error);
+        toast.error(t('error'));
+        setLoading(false);
+      });
+
+      return () => unsubscribe();
     }
   }, [user]);
-
-  const fetchReports = async () => {
-    if (!user) return;
-    
-    try {
-      const q = query(collection(db, 'reports'), where('userId', '==', user.uid));
-      const querySnapshot = await getDocs(q);
-      const reportsData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Report[];
-      setReports(reportsData);
-    } catch (error) {
-      toast.error(t('error'));
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleDelete = async (reportId: string) => {
     if (!confirm('Are you sure you want to delete this report?')) return;
     
     try {
       await deleteDoc(doc(db, 'reports', reportId));
-      setReports(reports.filter(r => r.id !== reportId));
       toast.success(t('reportDeleted'));
+    } catch (error) {
+      toast.error(t('error'));
+    }
+  };
+
+  const submitFeedback = async (reportId: string) => {
+    if (feedbackForm.rating === 0) {
+      toast.error('Please provide a rating');
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, 'reports', reportId), {
+        rating: feedbackForm.rating,
+        feedback: feedbackForm.feedback.trim(),
+        feedbackAt: new Date().toISOString()
+      });
+      toast.success(t('feedbackSubmitted'));
+      setFeedbackDialog(null);
+      setFeedbackForm({ rating: 0, feedback: '' });
     } catch (error) {
       toast.error(t('error'));
     }
@@ -138,15 +174,57 @@ export default function Dashboard() {
                   </p>
                   
                   <div className="flex gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => navigate(`/report/${report.id}`)}
-                    >
-                      <Edit className="w-4 h-4 mr-2" />
-                      {t('edit')}
-                    </Button>
+                    {report.status === 'fixed' && !report.rating && (
+                      <Dialog open={feedbackDialog === report.id} onOpenChange={(open) => setFeedbackDialog(open ? report.id : null)}>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm" className="flex-1">
+                            <Star className="w-4 h-4 mr-2" />
+                            {t('giveFeedback')}
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>{t('submitFeedback')}</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div>
+                              <Label>{t('rating')}</Label>
+                              <div className="flex gap-2 mt-2">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <Button
+                                    key={star}
+                                    type="button"
+                                    variant={feedbackForm.rating >= star ? 'default' : 'outline'}
+                                    size="sm"
+                                    onClick={() => setFeedbackForm({ ...feedbackForm, rating: star })}
+                                  >
+                                    <Star className="w-5 h-5" fill={feedbackForm.rating >= star ? 'currentColor' : 'none'} />
+                                  </Button>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <Label>{t('feedback')}</Label>
+                              <Textarea
+                                value={feedbackForm.feedback}
+                                onChange={(e) => setFeedbackForm({ ...feedbackForm, feedback: e.target.value })}
+                                placeholder={t('feedbackPlaceholder')}
+                                className="mt-2"
+                              />
+                            </div>
+                            <Button onClick={() => submitFeedback(report.id)} className="w-full">
+                              {t('submit')}
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    )}
+                    {report.rating && (
+                      <div className="flex items-center gap-1 text-sm">
+                        <Star className="w-4 h-4 fill-yellow-500 text-yellow-500" />
+                        <span>{report.rating}/5</span>
+                      </div>
+                    )}
                     <Button 
                       variant="destructive" 
                       size="sm"

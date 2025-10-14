@@ -4,6 +4,16 @@ import { initReactI18next } from 'react-i18next';
 const resources = {
   en: {
     translation: {
+      // New entries
+      giveFeedback: "Give Feedback",
+      submitFeedback: "Submit Feedback",
+      rating: "Rating",
+      feedback: "Feedback",
+      feedbackPlaceholder: "Share your experience with how the issue was resolved...",
+      feedbackSubmitted: "Feedback submitted successfully",
+      interactiveMap: "Interactive Pothole Map",
+      reportedBy: "Reported By",
+      allStatus: "All Status",
       // Navigation
       home: "Home",
       about: "About",
@@ -75,6 +85,16 @@ const resources = {
   },
   hi: {
     translation: {
+      // New entries
+      giveFeedback: "प्रतिक्रिया दें",
+      submitFeedback: "प्रतिक्रिया सबमिट करें",
+      rating: "रेटिंग",
+      feedback: "प्रतिक्रिया",
+      feedbackPlaceholder: "समस्या के समाधान के बारे में अपना अनुभव साझा करें...",
+      feedbackSubmitted: "प्रतिक्रिया सफलतापूर्वक सबमिट की गई",
+      interactiveMap: "इंटरैक्टिव गड्ढा मानचित्र",
+      reportedBy: "द्वारा रिपोर्ट किया गया",
+      allStatus: "सभी स्थिति",
       // Navigation
       home: "होम",
       about: "परिचय",
@@ -142,6 +162,88 @@ const resources = {
       // Footer
       allRightsReserved: "सर्वाधिकार सुरक्षित",
       language: "भाषा",
+    }
+  },
+  pa: {
+    translation: {
+      // New entries
+      giveFeedback: "ਫੀਡਬੈਕ ਦਿਓ",
+      submitFeedback: "ਫੀਡਬੈਕ ਜਮ੍ਹਾਂ ਕਰੋ",
+      rating: "ਰੇਟਿੰਗ",
+      feedback: "ਫੀਡਬੈਕ",
+      feedbackPlaceholder: "ਸਮੱਸਿਆ ਦੇ ਹੱਲ ਬਾਰੇ ਆਪਣਾ ਤਜਰਬਾ ਸਾਂਝਾ ਕਰੋ...",
+      feedbackSubmitted: "ਫੀਡਬੈਕ ਸਫਲਤਾਪੂਰਵਕ ਜਮ੍ਹਾਂ ਕੀਤੀ ਗਈ",
+      interactiveMap: "ਇੰਟਰਐਕਟਿਵ ਟੋਏ ਦਾ ਨਕਸ਼ਾ",
+      reportedBy: "ਦੁਆਰਾ ਰਿਪੋਰਟ ਕੀਤੀ ਗਈ",
+      allStatus: "ਸਾਰੀਆਂ ਸਥਿਤੀਆਂ",
+      
+      // Navigation
+      home: "ਘਰ",
+      about: "ਸਾਡੇ ਬਾਰੇ",
+      report: "ਰਿਪੋਰਟ",
+      contact: "ਸੰਪਰਕ",
+      login: "ਲਾਗਇਨ",
+      signup: "ਸਾਈਨ ਅੱਪ",
+      logout: "ਲਾਗਆਉਟ",
+      dashboard: "ਡੈਸ਼ਬੋਰਡ",
+      
+      // Hero Section
+      heroTitle: "ਸੜਕਾਂ ਦੀ ਮੁਰੰਮਤ ਕਰੋ, ਜਾਨਾਂ ਬਚਾਓ",
+      heroSubtitle: "ਆਪਣੇ ਖੇਤਰ ਵਿੱਚ ਟੋਇਆਂ ਦੀ ਰਿਪੋਰਟ ਕਰੋ ਅਤੇ ਸਾਡੀਆਂ ਸੜਕਾਂ ਨੂੰ ਸਾਰਿਆਂ ਲਈ ਸੁਰੱਖਿਅਤ ਬਣਾਉਣ ਵਿੱਚ ਮਦਦ ਕਰੋ",
+      reportPothole: "ਟੋਆ ਰਿਪੋਰਟ ਕਰੋ",
+      viewMap: "ਨਕਸ਼ਾ ਦੇਖੋ",
+      
+      // Stats
+      totalReports: "ਕੁੱਲ ਰਿਪੋਰਟਾਂ",
+      fixed: "ਠੀਕ ਕੀਤਾ ਗਿਆ",
+      pending: "ਬਕਾਇਆ",
+      inProgress: "ਪ੍ਰਗਤੀ ਵਿੱਚ",
+      
+      // Auth
+      email: "ਈਮੇਲ",
+      password: "ਪਾਸਵਰਡ",
+      name: "ਨਾਮ",
+      adminCode: "ਐਡਮਿਨ ਕੋਡ (ਵਿਕਲਪਿਕ)",
+      adminCodeHint: "ਐਡਮਿਨ ਵਜੋਂ ਰਜਿਸਟਰ ਕਰਨ ਲਈ ਐਡਮਿਨ ਕੋਡ ਦਰਜ ਕਰੋ",
+      loginTitle: "ਆਪਣੇ ਖਾਤੇ ਵਿੱਚ ਲਾਗਇਨ ਕਰੋ",
+      signupTitle: "ਨਵਾਂ ਖਾਤਾ ਬਣਾਓ",
+      alreadyHaveAccount: "ਕੀ ਤੁਹਾਡੇ ਕੋਲ ਪਹਿਲਾਂ ਤੋਂ ਇੱਕ ਖਾਤਾ ਹੈ?",
+      dontHaveAccount: "ਕੀ ਤੁਹਾਡੇ ਕੋਲ ਖਾਤਾ ਨਹੀਂ ਹੈ?",
+      
+      // Report Form
+      reportFormTitle: "ਟੋਆ ਰਿਪੋਰਟ ਕਰੋ",
+      location: "ਸਥਾਨ",
+      description: "ਵੇਰਵਾ",
+      uploadPhoto: "ਫੋਟੋ ਅੱਪਲੋਡ ਕਰੋ",
+      submit: "ਜਮ੍ਹਾਂ ਕਰੋ",
+      descriptionPlaceholder: "ਟੋਏ ਦੀ ਸਥਿਤੀ, ਆਕਾਰ ਅਤੇ ਕਿਸੇ ਵੀ ਸੁਰੱਖਿਆ ਚਿੰਤਾਵਾਂ ਦਾ ਵਰਣਨ ਕਰੋ",
+      
+      // Dashboard
+      myReports: "ਮੇਰੀਆਂ ਰਿਪੋਰਟਾਂ",
+      allReports: "ਸਾਰੀਆਂ ਰਿਪੋਰਟਾਂ",
+      analytics: "ਵਿਸ਼ਲੇਸ਼ਣ",
+      status: "ਸਥਿਤੀ",
+      actions: "ਕਾਰਵਾਈਆਂ",
+      edit: "ਸੋਧੋ",
+      delete: "ਮਿਟਾਓ",
+      updateStatus: "ਸਥਿਤੀ ਅੱਪਡੇਟ ਕਰੋ",
+      
+      // Status
+      statusPending: "ਬਕਾਇਆ",
+      statusInProgress: "ਪ੍ਰਗਤੀ ਵਿੱਚ",
+      statusFixed: "ਠੀਕ ਕੀਤਾ ਗਿਆ",
+      
+      // Messages
+      loginSuccess: "ਸਫਲਤਾਪੂਰਵਕ ਲਾਗਇਨ ਹੋ ਗਿਆ",
+      signupSuccess: "ਖਾਤਾ ਸਫਲਤਾਪੂਰਵਕ ਬਣਾਇਆ ਗਿਆ",
+      reportSubmitted: "ਰਿਪੋਰਟ ਸਫਲਤਾਪੂਰਵਕ ਜਮ੍ਹਾਂ ਕੀਤੀ ਗਈ",
+      reportUpdated: "ਰਿਪੋਰਟ ਸਫਲਤਾਪੂਰਵਕ ਅੱਪਡੇਟ ਕੀਤੀ ਗਈ",
+      reportDeleted: "ਰਿਪੋਰਟ ਸਫਲਤਾਪੂਰਵਕ ਮਿਟਾਈ ਗਈ",
+      error: "ਇੱਕ ਗਲਤੀ ਹੋਈ",
+      
+      // Footer
+      allRightsReserved: "ਸਾਰੇ ਅਧਿਕਾਰ ਰਾਖਵੇਂ",
+      language: "ਭਾਸ਼ਾ",
     }
   }
 };
