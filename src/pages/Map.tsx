@@ -1,44 +1,22 @@
 import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import { LatLngExpression } from 'leaflet';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Navigation } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { MapPin } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { useTranslation } from 'react-i18next';
 
 // Fix for default marker icons
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-});
-
-// Custom marker icons
-const getMarkerIcon = (status: string) => {
-  const color = status === 'fixed' ? 'green' : status === 'inProgress' ? 'orange' : 'red';
-  return L.divIcon({
-    className: 'custom-marker',
-    html: `
-      <div style="
-        background-color: ${color};
-        width: 24px;
-        height: 24px;
-        border-radius: 50% 50% 50% 0;
-        transform: rotate(-45deg);
-        border: 3px solid white;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-      "></div>
-    `,
-    iconSize: [24, 24],
-    iconAnchor: [12, 24],
+if (typeof window !== 'undefined') {
+  delete (L.Icon.Default.prototype as any)._getIconUrl;
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
   });
-};
+}
 
 interface Report {
   id: string;
@@ -52,56 +30,24 @@ interface Report {
   longitude?: number;
 }
 
-function LocationMarker() {
-  const map = useMap();
-  const [position, setPosition] = useState<LatLngExpression | null>(null);
-
-  useEffect(() => {
-    map.locate().on('locationfound', (e: any) => {
-      const pos: LatLngExpression = [e.latitude, e.longitude];
-      setPosition(pos);
-      map.flyTo(pos, 13);
-    });
-  }, [map]);
-
-  return position === null ? null : (
-    <Marker position={position}>
-      <Popup>You are here</Popup>
-    </Marker>
-  );
-}
-
 export default function Map() {
   const { t } = useTranslation();
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
-  const [center, setCenter] = useState<LatLngExpression>([30.7333, 76.7794]); // Chandigarh
+  const [map, setMap] = useState<L.Map | null>(null);
+  const [center] = useState<[number, number]>([30.7333, 76.7794]); // Chandigarh
 
   useEffect(() => {
-    // Get user location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const pos: LatLngExpression = [position.coords.latitude, position.coords.longitude];
-          setCenter(pos);
-        },
-        () => {
-          console.log('Unable to get location, using default');
-        }
-      );
-    }
-
     // Real-time listener for reports
     const unsubscribe = onSnapshot(collection(db, 'reports'), (querySnapshot) => {
       const reportsData = querySnapshot.docs.map(doc => {
         const data = doc.data();
-        const currentCenter = center as [number, number];
         return {
           id: doc.id,
           ...data,
           // Generate random coordinates near center if not available
-          latitude: data.latitude || currentCenter[0] + (Math.random() - 0.5) * 0.1,
-          longitude: data.longitude || currentCenter[1] + (Math.random() - 0.5) * 0.1,
+          latitude: data.latitude || center[0] + (Math.random() - 0.5) * 0.1,
+          longitude: data.longitude || center[1] + (Math.random() - 0.5) * 0.1,
         };
       }) as Report[];
       setReports(reportsData);
@@ -114,16 +60,85 @@ export default function Map() {
     return () => unsubscribe();
   }, []);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'fixed':
-        return 'default';
-      case 'inProgress':
-        return 'default';
-      default:
-        return 'destructive';
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // Initialize map
+    const mapInstance = L.map('map-container').setView(center, 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(mapInstance);
+
+    // Try to get user location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userPos: [number, number] = [position.coords.latitude, position.coords.longitude];
+          mapInstance.setView(userPos, 13);
+          L.marker(userPos).addTo(mapInstance)
+            .bindPopup('You are here')
+            .openPopup();
+        },
+        () => {
+          console.log('Unable to get location, using default');
+        }
+      );
     }
-  };
+
+    setMap(mapInstance);
+
+    return () => {
+      mapInstance.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!map || reports.length === 0) return;
+
+    // Clear existing markers
+    map.eachLayer((layer) => {
+      if (layer instanceof L.Marker) {
+        map.removeLayer(layer);
+      }
+    });
+
+    // Add markers for each report
+    reports.forEach((report) => {
+      const markerColor = report.status === 'fixed' ? '#10b981' : report.status === 'inProgress' ? '#f59e0b' : '#ef4444';
+      
+      const customIcon = L.divIcon({
+        className: 'custom-marker',
+        html: `
+          <div style="
+            background-color: ${markerColor};
+            width: 24px;
+            height: 24px;
+            border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          "></div>
+        `,
+        iconSize: [24, 24],
+        iconAnchor: [12, 24],
+      });
+
+      const marker = L.marker([report.latitude!, report.longitude!], { icon: customIcon })
+        .addTo(map);
+
+      const popupContent = `
+        <div style="min-width: 200px;">
+          <h3 style="font-weight: bold; font-size: 1.125rem; margin-bottom: 0.5rem;">${report.location}</h3>
+          <p style="font-size: 0.875rem; margin-bottom: 0.5rem;">${report.description}</p>
+          ${report.photoURL ? `<img src="${report.photoURL}" alt="Pothole" style="width: 100%; height: 128px; object-fit: cover; border-radius: 0.5rem; margin-top: 0.5rem;" />` : ''}
+          <p style="font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem;">Reported by: ${report.userName || 'Anonymous'}</p>
+        </div>
+      `;
+
+      marker.bindPopup(popupContent);
+    });
+  }, [map, reports]);
 
   if (loading) {
     return (
@@ -156,53 +171,7 @@ export default function Map() {
       </div>
 
       <Card className="card-elevated overflow-hidden">
-        <div style={{ height: '600px', width: '100%' }}>
-          <MapContainer 
-            center={center} 
-            zoom={13} 
-            style={{ height: '100%', width: '100%' }}
-            className="rounded-xl"
-          >
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            <LocationMarker />
-            {reports.map((report) => {
-              const pos: LatLngExpression = [report.latitude!, report.longitude!];
-              return (
-                <Marker
-                  key={report.id}
-                  position={pos}
-                >
-                  <Popup>
-                <div className="min-w-[200px]">
-                  <div className="flex items-start gap-2 mb-2">
-                    <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
-                    <div>
-                      <h3 className="font-bold text-lg">{report.location}</h3>
-                      <Badge variant={getStatusColor(report.status) as any} className="mt-1">
-                        {t(`status${report.status.charAt(0).toUpperCase() + report.status.slice(1)}`)}
-                      </Badge>
-                    </div>
-                  </div>
-                  <p className="text-sm mb-2">{report.description}</p>
-                  {report.photoURL && (
-                    <img 
-                      src={report.photoURL} 
-                      alt="Pothole" 
-                      className="w-full h-32 object-cover rounded mt-2"
-                    />
-                  )}
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Reported by: {report.userName || 'Anonymous'}
-                  </p>
-                </div>
-              </Popup>
-            </Marker>
-            );
-          })}
-        </MapContainer>
-        </div>
+        <div id="map-container" style={{ height: '600px', width: '100%' }} className="rounded-xl" />
       </Card>
 
       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
