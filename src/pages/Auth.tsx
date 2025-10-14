@@ -7,6 +7,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Lock, Mail, User, Shield } from 'lucide-react';
+import { toast } from 'sonner';
+import { z } from 'zod';
+
+const signupSchema = z.object({
+  name: z.string().trim().min(2, 'Name must be at least 2 characters').max(100, 'Name too long'),
+  email: z.string().trim().email('Invalid email address').max(255, 'Email too long'),
+  password: z.string().min(6, 'Password must be at least 6 characters').max(128, 'Password too long'),
+  adminCode: z.string().optional()
+});
+
+const loginSchema = z.object({
+  email: z.string().trim().email('Invalid email address'),
+  password: z.string().min(1, 'Password is required')
+});
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
@@ -30,14 +44,37 @@ export default function Auth() {
     setLoading(true);
 
     try {
+      // Validate input
       if (isSignup) {
-        await signup(formData.email, formData.password, formData.name, formData.adminCode);
+        const validation = signupSchema.safeParse(formData);
+        if (!validation.success) {
+          toast.error(validation.error.errors[0].message);
+          setLoading(false);
+          return;
+        }
+        await signup(formData.email.trim(), formData.password, formData.name.trim(), formData.adminCode);
       } else {
-        await login(formData.email, formData.password);
+        const validation = loginSchema.safeParse(formData);
+        if (!validation.success) {
+          toast.error(validation.error.errors[0].message);
+          setLoading(false);
+          return;
+        }
+        await login(formData.email.trim(), formData.password);
       }
       navigate('/');
-    } catch (error) {
-      console.error('Auth error:', error);
+    } catch (error: any) {
+      // Show user-friendly error messages
+      const errorMessage = error?.message || error?.code || 'An error occurred';
+      if (errorMessage.includes('invalid-credential')) {
+        toast.error(isSignup ? 'Failed to create account. Please try again.' : 'Invalid email or password');
+      } else if (errorMessage.includes('email-already-in-use')) {
+        toast.error('Email already in use. Please login instead.');
+      } else if (errorMessage.includes('weak-password')) {
+        toast.error('Password is too weak. Use at least 6 characters.');
+      } else {
+        toast.error(errorMessage);
+      }
     } finally {
       setLoading(false);
     }
