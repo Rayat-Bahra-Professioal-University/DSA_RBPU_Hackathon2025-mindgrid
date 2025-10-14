@@ -3,15 +3,13 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
-// TODO: Replace with your Firebase config
-// Get this from Firebase Console > Project Settings > General > Your apps
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyD0gwwplo1kyAmak8vH8_qmFbe5WVknKm8",
+  authDomain: "pothole-watch.firebaseapp.com",
+  projectId: "pothole-watch",
+  storageBucket: "pothole-watch.firebasestorage.app",
+  messagingSenderId: "3775813143",
+  appId: "1:3775813143:web:dc1b9d043ec7a42a936e52"
 };
 
 // Initialize Firebase
