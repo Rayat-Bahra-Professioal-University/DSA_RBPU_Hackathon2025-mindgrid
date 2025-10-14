@@ -1,4 +1,4 @@
-import { initializeApp, getApps } from "firebase/app";
+import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
@@ -12,10 +12,13 @@ const firebaseConfig = {
   appId: "1:3775813143:web:dc1b9d043ec7a42a936e52",
 };
 
-// Initialize Firebase with a named app to avoid HMR duplicate/stale configs
-const APP_NAME = "pothole-watch-app";
-const existingApp = getApps().find((a) => a.name === APP_NAME);
-const app = existingApp ?? initializeApp(firebaseConfig, APP_NAME);
+// Initialize Firebase - reuse existing app during HMR
+let app;
+try {
+  app = getApp(); // Try to get existing default app
+} catch {
+  app = initializeApp(firebaseConfig); // Initialize if doesn't exist
+}
 
 // Initialize services
 export const auth = getAuth(app);
