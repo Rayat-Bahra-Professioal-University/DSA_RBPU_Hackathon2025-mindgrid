@@ -1,7 +1,7 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD0gwwplo1kyAmak8vH8_qmFbe5WVknKm8",
@@ -9,7 +9,7 @@ const firebaseConfig = {
   projectId: "pothole-watch",
   storageBucket: "pothole-watch.firebasestorage.app",
   messagingSenderId: "3775813143",
-  appId: "1:3775813143:web:dc1b9d043ec7a42a936e52"
+  appId: "1:3775813143:web:dc1b9d043ec7a42a936e52",
 };
 
 // Initialize Firebase
