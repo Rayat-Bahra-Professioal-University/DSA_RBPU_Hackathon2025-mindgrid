@@ -65,19 +65,10 @@ export default function Navbar() {
               {i18n.language === 'en' ? 'हिंदी' : i18n.language === 'hi' ? 'ਪੰਜਾਬੀ' : 'English'}
             </Button>
 
-            {user ? (
+            {user && (
               <Button onClick={handleLogout} size="lg" variant="outline">
                 {t('logout')}
               </Button>
-            ) : (
-              <>
-                <Button onClick={() => navigate('/auth')} size="lg" variant="outline">
-                  {t('login')}
-                </Button>
-                <Button onClick={() => navigate('/auth?mode=signup')} size="lg">
-                  {t('signup')}
-                </Button>
-              </>
             )}
           </div>
 
@@ -123,19 +114,10 @@ export default function Navbar() {
               {i18n.language === 'en' ? 'हिंदी' : i18n.language === 'hi' ? 'ਪੰਜਾਬੀ' : 'English'}
             </Button>
 
-            {user ? (
+            {user && (
               <Button onClick={handleLogout} size="lg" variant="outline" className="w-full">
                 {t('logout')}
               </Button>
-            ) : (
-              <div className="space-y-2">
-                <Button onClick={() => navigate('/auth')} size="lg" variant="outline" className="w-full">
-                  {t('login')}
-                </Button>
-                <Button onClick={() => navigate('/auth?mode=signup')} size="lg" className="w-full">
-                  {t('signup')}
-                </Button>
-              </div>
             )}
           </div>
         )}

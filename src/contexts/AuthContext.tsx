@@ -42,19 +42,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(user);
       
       if (user) {
-        // Fetch user data from Firestore
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
           const data = userDoc.data() as UserData;
           setUserData(data);
           
-          // Trigger redirect after userData is set
           if (shouldRedirect) {
-            setTimeout(() => {
-              const redirectPath = data.role === 'admin' ? '/admin' : '/dashboard';
-              window.location.href = redirectPath;
-              setShouldRedirect(false);
-            }, 100);
+            const redirectPath = data.role === 'admin' ? '/admin' : '/dashboard';
+            window.location.href = redirectPath;
+            setShouldRedirect(false);
           }
         }
       } else {

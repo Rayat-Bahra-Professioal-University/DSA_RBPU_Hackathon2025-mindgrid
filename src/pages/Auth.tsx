@@ -45,7 +45,6 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      // Validate input
       if (isSignup) {
         const validation = signupSchema.safeParse(formData);
         if (!validation.success) {
@@ -55,7 +54,6 @@ export default function Auth() {
         }
         
         await signup(formData.email.trim(), formData.password, formData.name.trim(), formData.adminCode);
-        // Redirect will be handled by AuthContext based on role
       } else {
         const validation = loginSchema.safeParse(formData);
         if (!validation.success) {
@@ -65,10 +63,8 @@ export default function Auth() {
         }
         
         await login(formData.email.trim(), formData.password);
-        // Redirect will be handled by AuthContext based on role
       }
     } catch (error: any) {
-      // Show user-friendly error messages
       const errorMessage = error?.message || error?.code || 'An error occurred';
       if (errorMessage.includes('invalid-credential')) {
         toast.error(isSignup ? 'Failed to create account. Please try again.' : 'Invalid email or password');
@@ -79,14 +75,13 @@ export default function Auth() {
       } else {
         toast.error(errorMessage);
       }
-    } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      <Card className="w-full max-w-md p-8 card-elevated">
+    <div className="min-h-screen flex items-center justify-center px-4 py-12 animate-fade-in">
+      <Card className="w-full max-w-md p-8 card-elevated transition-all duration-300 hover:shadow-xl">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Lock className="w-8 h-8 text-primary-foreground" />
@@ -165,10 +160,15 @@ export default function Auth() {
 
           <Button 
             type="submit" 
-            className="w-full btn-large"
+            className="w-full btn-large transition-all duration-200 hover:scale-[1.02]"
             disabled={loading}
           >
-            {loading ? 'Loading...' : isSignup ? t('signup') : t('login')}
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                Processing...
+              </div>
+            ) : isSignup ? t('signup') : t('login')}
           </Button>
         </form>
 
@@ -182,7 +182,7 @@ export default function Auth() {
               setIsSignup(!isSignup);
               setFormData({ name: '', email: '', password: '', adminCode: '' });
             }}
-            className="text-lg w-full h-12"
+            className="text-lg w-full h-12 transition-all duration-200 hover:scale-[1.02]"
             type="button"
           >
             {isSignup ? t('login') : t('signup')}
