@@ -104,12 +104,13 @@ export default function Home() {
                 transition={{ duration: 0.5 }}
                 className="mb-8"
               >
-                <Card className="inline-block px-8 py-4 bg-gradient-to-r from-primary/20 to-accent/20 border-primary/30">
+                <Card className="inline-block px-10 py-5 bg-gradient-to-r from-primary/20 via-accent/15 to-primary/20 border-primary/30 shadow-lg">
                   <div className="flex items-center gap-3">
-                    <Sparkles className="w-6 h-6 text-primary" />
-                    <p className="text-2xl font-semibold">
-                      Welcome back, <span className="text-primary">{userData.name}</span>!
+                    <Sparkles className="w-7 h-7 text-primary animate-pulse" />
+                    <p className="text-2xl md:text-3xl font-bold">
+                      Welcome, <span className="text-primary bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">{userData.name}</span>
                     </p>
+                    <Sparkles className="w-7 h-7 text-accent animate-pulse" />
                   </div>
                 </Card>
               </motion.div>
