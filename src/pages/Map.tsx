@@ -36,6 +36,7 @@ export default function Map() {
   const [loading, setLoading] = useState(true);
   const [map, setMap] = useState<L.Map | null>(null);
   const [center] = useState<[number, number]>([30.7333, 76.7794]); // Chandigarh
+  const mapInitialized = useState(false)[0];
 
   useEffect(() => {
     // Real-time listener for reports
@@ -61,37 +62,54 @@ export default function Map() {
   }, []);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || loading) return;
 
-    // Initialize map
-    const mapInstance = L.map('map-container').setView(center, 13);
+    // Wait for DOM to be ready
+    const timer = setTimeout(() => {
+      const container = document.getElementById('map-container');
+      if (!container) {
+        console.error('Map container not found');
+        return;
+      }
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(mapInstance);
+      // Check if map is already initialized
+      if (container.querySelector('.leaflet-container')) {
+        return;
+      }
 
-    // Try to get user location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userPos: [number, number] = [position.coords.latitude, position.coords.longitude];
-          mapInstance.setView(userPos, 13);
-          L.marker(userPos).addTo(mapInstance)
-            .bindPopup('You are here')
-            .openPopup();
-        },
-        () => {
-          console.log('Unable to get location, using default');
-        }
-      );
-    }
+      // Initialize map
+      const mapInstance = L.map('map-container').setView(center, 13);
 
-    setMap(mapInstance);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(mapInstance);
+
+      // Try to get user location
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const userPos: [number, number] = [position.coords.latitude, position.coords.longitude];
+            mapInstance.setView(userPos, 13);
+            L.marker(userPos).addTo(mapInstance)
+              .bindPopup('You are here')
+              .openPopup();
+          },
+          () => {
+            console.log('Unable to get location, using default');
+          }
+        );
+      }
+
+      setMap(mapInstance);
+    }, 100);
 
     return () => {
-      mapInstance.remove();
+      clearTimeout(timer);
+      if (map) {
+        map.remove();
+      }
     };
-  }, []);
+  }, [loading]);
 
   useEffect(() => {
     if (!map || reports.length === 0) return;
