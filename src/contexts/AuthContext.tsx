@@ -9,6 +9,7 @@ import {
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface UserData {
   uid: string;
@@ -34,6 +35,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [shouldRedirect, setShouldRedirect] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -43,7 +45,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Fetch user data from Firestore
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (userDoc.exists()) {
-          setUserData(userDoc.data() as UserData);
+          const data = userDoc.data() as UserData;
+          setUserData(data);
+          
+          // Trigger redirect after userData is set
+          if (shouldRedirect) {
+            setTimeout(() => {
+              const redirectPath = data.role === 'admin' ? '/admin' : '/dashboard';
+              window.location.href = redirectPath;
+              setShouldRedirect(false);
+            }, 100);
+          }
         }
       } else {
         setUserData(null);
@@ -53,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     return unsubscribe;
-  }, []);
+  }, [shouldRedirect]);
 
   const signup = async (email: string, password: string, name: string, adminCode?: string) => {
     try {
@@ -70,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       
       toast.success(role === 'admin' ? 'Admin account created successfully!' : 'Account created successfully!');
+      setShouldRedirect(true);
     } catch (error: any) {
       toast.error(error.message || 'Failed to create account');
       throw error;
@@ -80,6 +93,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       toast.success('Logged in successfully!');
+      setShouldRedirect(true);
     } catch (error: any) {
       toast.error(error.message || 'Failed to login');
       throw error;

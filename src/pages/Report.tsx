@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 
 export default function Report() {
   const { t } = useTranslation();
-  const { user, userData } = useAuth();
+  const { user, userData, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -25,6 +25,18 @@ export default function Report() {
     location: '',
     description: ''
   });
+
+  useEffect(() => {
+    if (!authLoading) {
+      if (!user) {
+        toast.error('Please login to report a pothole');
+        navigate('/auth');
+      } else if (userData?.role === 'admin') {
+        toast.error('Admins cannot report potholes');
+        navigate('/admin');
+      }
+    }
+  }, [user, userData, authLoading, navigate]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

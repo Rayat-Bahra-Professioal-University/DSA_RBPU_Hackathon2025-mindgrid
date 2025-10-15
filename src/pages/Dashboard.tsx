@@ -27,7 +27,7 @@ interface Report {
 
 export default function Dashboard() {
   const { t } = useTranslation();
-  const { user, loading: authLoading } = useAuth();
+  const { user, userData, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,10 +36,14 @@ export default function Dashboard() {
   const [notifications, setNotifications] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/auth');
+    if (!authLoading) {
+      if (!user) {
+        navigate('/auth');
+      } else if (userData?.role === 'admin') {
+        navigate('/admin');
+      }
     }
-  }, [user, authLoading, navigate]);
+  }, [user, userData, authLoading, navigate]);
 
   useEffect(() => {
     if (user) {

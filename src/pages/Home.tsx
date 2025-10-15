@@ -124,14 +124,16 @@ export default function Home() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                size="lg" 
-                className="btn-large text-xl"
-                onClick={() => navigate('/report')}
-              >
-                <MapPin className="w-6 h-6 mr-2" />
-                {t('reportPothole')}
-              </Button>
+              {userData?.role !== 'admin' && (
+                <Button 
+                  size="lg" 
+                  className="btn-large text-xl"
+                  onClick={() => navigate('/report')}
+                >
+                  <MapPin className="w-6 h-6 mr-2" />
+                  {t('reportPothole')}
+                </Button>
+              )}
               <Button 
                 size="lg" 
                 variant="outline" 
@@ -259,23 +261,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="mb-6 text-primary-foreground">Ready to Make a Difference?</h2>
-          <p className="text-xl md:text-2xl mb-8 opacity-90 max-w-2xl mx-auto">
-            Join thousands of citizens helping to improve road safety in our community.
-          </p>
-          <Button 
-            size="lg" 
-            variant="secondary" 
-            className="btn-large text-xl"
-            onClick={() => navigate('/auth?mode=signup')}
-          >
-            Get Started Today
-          </Button>
-        </div>
-      </section>
     </div>
   );
 }

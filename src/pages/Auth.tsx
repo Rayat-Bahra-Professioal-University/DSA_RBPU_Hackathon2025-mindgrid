@@ -25,6 +25,7 @@ const loginSchema = z.object({
 export default function Auth() {
   const [searchParams] = useSearchParams();
   const mode = searchParams.get('mode') || 'login';
+  const isAdminMode = searchParams.get('admin') === 'true';
   const [isSignup, setIsSignup] = useState(mode === 'signup');
   const [loading, setLoading] = useState(false);
   
@@ -53,10 +54,8 @@ export default function Auth() {
           return;
         }
         
-        // Navigate immediately for better UX
-        const signupPromise = signup(formData.email.trim(), formData.password, formData.name.trim(), formData.adminCode);
-        navigate('/');
-        await signupPromise;
+        await signup(formData.email.trim(), formData.password, formData.name.trim(), formData.adminCode);
+        // Redirect will be handled by AuthContext based on role
       } else {
         const validation = loginSchema.safeParse(formData);
         if (!validation.success) {
@@ -65,10 +64,8 @@ export default function Auth() {
           return;
         }
         
-        // Navigate immediately for better UX
-        const loginPromise = login(formData.email.trim(), formData.password);
-        navigate('/');
-        await loginPromise;
+        await login(formData.email.trim(), formData.password);
+        // Redirect will be handled by AuthContext based on role
       }
     } catch (error: any) {
       // Show user-friendly error messages
@@ -147,7 +144,7 @@ export default function Auth() {
             />
           </div>
 
-          {isSignup && (
+          {isSignup && isAdminMode && (
             <div className="space-y-2">
               <Label htmlFor="adminCode" className="text-lg flex items-center gap-2">
                 <Shield className="w-5 h-5 text-amber-500" />
@@ -160,8 +157,9 @@ export default function Auth() {
                 onChange={(e) => setFormData({ ...formData, adminCode: e.target.value })}
                 className="text-lg h-14"
                 placeholder={t('adminCodeHint')}
+                required
               />
-              <p className="text-sm text-muted-foreground font-medium">{t('adminCodeHint')}</p>
+              <p className="text-sm text-amber-500 font-medium">{t('adminCodeHint')}</p>
             </div>
           )}
 
@@ -189,6 +187,19 @@ export default function Auth() {
           >
             {isSignup ? t('login') : t('signup')}
           </Button>
+          
+          {isSignup && !isAdminMode && (
+            <div className="pt-4 border-t border-border mt-4">
+              <Button
+                variant="link"
+                onClick={() => navigate('/auth?mode=signup&admin=true')}
+                className="text-sm text-muted-foreground hover:text-amber-500"
+                type="button"
+              >
+                🔐 Admin Registration
+              </Button>
+            </div>
+          )}
         </div>
       </Card>
     </div>
