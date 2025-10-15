@@ -52,7 +52,11 @@ export default function Auth() {
           setLoading(false);
           return;
         }
-        await signup(formData.email.trim(), formData.password, formData.name.trim(), formData.adminCode);
+        
+        // Navigate immediately for better UX
+        const signupPromise = signup(formData.email.trim(), formData.password, formData.name.trim(), formData.adminCode);
+        navigate('/');
+        await signupPromise;
       } else {
         const validation = loginSchema.safeParse(formData);
         if (!validation.success) {
@@ -60,9 +64,12 @@ export default function Auth() {
           setLoading(false);
           return;
         }
-        await login(formData.email.trim(), formData.password);
+        
+        // Navigate immediately for better UX
+        const loginPromise = login(formData.email.trim(), formData.password);
+        navigate('/');
+        await loginPromise;
       }
-      navigate('/');
     } catch (error: any) {
       // Show user-friendly error messages
       const errorMessage = error?.message || error?.code || 'An error occurred';
@@ -143,18 +150,18 @@ export default function Auth() {
           {isSignup && (
             <div className="space-y-2">
               <Label htmlFor="adminCode" className="text-lg flex items-center gap-2">
-                <Shield className="w-5 h-5" />
+                <Shield className="w-5 h-5 text-amber-500" />
                 {t('adminCode')}
               </Label>
               <Input
                 id="adminCode"
-                type="text"
+                type="password"
                 value={formData.adminCode}
                 onChange={(e) => setFormData({ ...formData, adminCode: e.target.value })}
                 className="text-lg h-14"
                 placeholder={t('adminCodeHint')}
               />
-              <p className="text-sm text-muted-foreground">{t('adminCodeHint')}</p>
+              <p className="text-sm text-muted-foreground font-medium">{t('adminCodeHint')}</p>
             </div>
           )}
 
@@ -167,14 +174,18 @@ export default function Auth() {
           </Button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-6 text-center space-y-2">
           <p className="text-lg text-muted-foreground">
             {isSignup ? t('alreadyHaveAccount') : t('dontHaveAccount')}
           </p>
           <Button
-            variant="link"
-            onClick={() => setIsSignup(!isSignup)}
-            className="text-lg"
+            variant="outline"
+            onClick={() => {
+              setIsSignup(!isSignup);
+              setFormData({ name: '', email: '', password: '', adminCode: '' });
+            }}
+            className="text-lg w-full h-12"
+            type="button"
           >
             {isSignup ? t('login') : t('signup')}
           </Button>
