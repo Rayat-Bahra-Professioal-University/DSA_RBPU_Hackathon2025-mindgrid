@@ -1,18 +1,87 @@
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { MapPin, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
+import { MapPin, CheckCircle, Clock, AlertTriangle, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
+import { useEffect, useState } from 'react';
+import { collection, onSnapshot } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { Card } from '@/components/ui/card';
+
+interface Report {
+  id: string;
+  status: 'pending' | 'inProgress' | 'fixed';
+}
 
 export default function Home() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user, userData } = useAuth();
+  const [stats, setStats] = useState({
+    total: 0,
+    fixed: 0,
+    inProgress: 0,
+    pending: 0
+  });
+  const [loading, setLoading] = useState(true);
 
-  const stats = [
-    { icon: MapPin, label: t('totalReports'), value: '1,234', color: 'text-primary' },
-    { icon: CheckCircle, label: t('fixed'), value: '856', color: 'text-success' },
-    { icon: Clock, label: t('inProgress'), value: '234', color: 'text-accent' },
-    { icon: AlertTriangle, label: t('pending'), value: '144', color: 'text-destructive' },
+  useEffect(() => {
+    // Real-time listener for reports to calculate live stats
+    const unsubscribe = onSnapshot(collection(db, 'reports'), (querySnapshot) => {
+      const reports = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Report[];
+
+      setStats({
+        total: reports.length,
+        fixed: reports.filter(r => r.status === 'fixed').length,
+        inProgress: reports.filter(r => r.status === 'inProgress').length,
+        pending: reports.filter(r => r.status === 'pending').length
+      });
+      setLoading(false);
+    }, (error) => {
+      console.error('Error fetching stats:', error);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const statsData = [
+    { 
+      icon: MapPin, 
+      label: t('totalReports'), 
+      value: loading ? '...' : stats.total.toLocaleString(), 
+      color: 'text-blue-500',
+      bgColor: 'bg-blue-500/10',
+      iconBg: 'bg-blue-500'
+    },
+    { 
+      icon: CheckCircle, 
+      label: t('fixed'), 
+      value: loading ? '...' : stats.fixed.toLocaleString(), 
+      color: 'text-green-500',
+      bgColor: 'bg-green-500/10',
+      iconBg: 'bg-green-500'
+    },
+    { 
+      icon: Clock, 
+      label: t('inProgress'), 
+      value: loading ? '...' : stats.inProgress.toLocaleString(), 
+      color: 'text-yellow-500',
+      bgColor: 'bg-yellow-500/10',
+      iconBg: 'bg-yellow-500'
+    },
+    { 
+      icon: AlertTriangle, 
+      label: t('pending'), 
+      value: loading ? '...' : stats.pending.toLocaleString(), 
+      color: 'text-red-500',
+      bgColor: 'bg-red-500/10',
+      iconBg: 'bg-red-500'
+    },
   ];
 
   return (
@@ -28,6 +97,24 @@ export default function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
+            {user && userData && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                className="mb-8"
+              >
+                <Card className="inline-block px-8 py-4 bg-gradient-to-r from-primary/20 to-accent/20 border-primary/30">
+                  <div className="flex items-center gap-3">
+                    <Sparkles className="w-6 h-6 text-primary" />
+                    <p className="text-2xl font-semibold">
+                      Welcome back, <span className="text-primary">{userData.name}</span>!
+                    </p>
+                  </div>
+                </Card>
+              </motion.div>
+            )}
+            
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
               {t('heroTitle')}
             </h1>
@@ -57,24 +144,60 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats Section */}
+      {/* Stats Section - Real-time from Firebase */}
       <section className="py-16 bg-card">
         <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Live Statistics</h2>
+            <p className="text-lg text-muted-foreground">Real-time data synced with Firebase</p>
+          </motion.div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {stats.map((stat, index) => (
+            {statsData.map((stat, index) => (
               <motion.div
                 key={stat.label}
-                className="card-elevated text-center"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: index * 0.1 }}
               >
-                <stat.icon className={`w-12 h-12 mx-auto mb-4 ${stat.color}`} />
-                <div className="text-4xl font-bold mb-2">{stat.value}</div>
-                <div className="text-lg text-muted-foreground">{stat.label}</div>
+                <Card className={`card-elevated text-center p-8 ${stat.bgColor} border-transparent hover:scale-105 transition-transform duration-300`}>
+                  <div className={`w-16 h-16 ${stat.iconBg} rounded-2xl flex items-center justify-center mx-auto mb-6`}>
+                    <stat.icon className="w-8 h-8 text-white" />
+                  </div>
+                  <motion.div 
+                    className={`text-5xl font-bold mb-3 ${stat.color}`}
+                    key={stat.value}
+                    initial={{ scale: 1.2, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    {stat.value}
+                  </motion.div>
+                  <div className="text-lg font-medium text-muted-foreground">{stat.label}</div>
+                </Card>
               </motion.div>
             ))}
           </div>
+          
+          {!loading && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="text-center mt-8"
+            >
+              <div className="inline-flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span>Live updates from Firebase</span>
+              </div>
+            </motion.div>
+          )}
         </div>
       </section>
 
