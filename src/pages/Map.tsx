@@ -169,42 +169,77 @@ export default function Map() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="mb-8 flex items-center justify-between">
-        <h1>{t('interactiveMap')}</h1>
-        <div className="flex gap-4 items-center">
-          <div className="flex gap-2 items-center">
-            <div className="w-4 h-4 rounded-full bg-red-500"></div>
-            <span>{t('statusPending')}</span>
+    <div className="min-h-screen bg-gradient-to-br from-background via-card/30 to-background">
+      <div className="container mx-auto container-padding section-padding">
+        <motion.div 
+          className="mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold mb-4 text-gradient">{t('interactiveMap')}</h1>
+              <p className="text-base text-muted-foreground">Explore pothole reports across your city in real-time</p>
+            </div>
+            
+            <div className="flex flex-wrap gap-6 items-center">
+              <div className="flex items-center gap-3 px-4 py-3 bg-red-50 rounded-xl border border-red-200">
+                <div className="w-4 h-4 rounded-full bg-red-500 shadow-lg"></div>
+                <span className="font-semibold text-red-700">{t('statusPending')}</span>
+              </div>
+              <div className="flex items-center gap-3 px-4 py-3 bg-orange-50 rounded-xl border border-orange-200">
+                <div className="w-4 h-4 rounded-full bg-orange-500 shadow-lg"></div>
+                <span className="font-semibold text-orange-700">{t('statusInProgress')}</span>
+              </div>
+              <div className="flex items-center gap-3 px-4 py-3 bg-green-50 rounded-xl border border-green-200">
+                <div className="w-4 h-4 rounded-full bg-green-500 shadow-lg"></div>
+                <span className="font-semibold text-green-700">{t('statusFixed')}</span>
+              </div>
+            </div>
           </div>
-          <div className="flex gap-2 items-center">
-            <div className="w-4 h-4 rounded-full bg-orange-500"></div>
-            <span>{t('statusInProgress')}</span>
-          </div>
-          <div className="flex gap-2 items-center">
-            <div className="w-4 h-4 rounded-full bg-green-500"></div>
-            <span>{t('statusFixed')}</span>
-          </div>
-        </div>
-      </div>
+        </motion.div>
 
-      <Card className="card-elevated overflow-hidden">
-        <div id="map-container" style={{ height: '600px', width: '100%' }} className="rounded-xl" />
-      </Card>
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          <Card className="card-gradient overflow-hidden shadow-2xl">
+            <div id="map-container" style={{ height: '600px', width: '100%' }} className="rounded-2xl" />
+          </Card>
+        </motion.div>
 
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="card-elevated text-center p-6">
-          <div className="text-3xl font-bold text-red-500">{reports.filter(r => r.status === 'pending').length}</div>
-          <div className="text-muted-foreground">{t('statusPending')}</div>
-        </Card>
-        <Card className="card-elevated text-center p-6">
-          <div className="text-3xl font-bold text-orange-500">{reports.filter(r => r.status === 'inProgress').length}</div>
-          <div className="text-muted-foreground">{t('statusInProgress')}</div>
-        </Card>
-        <Card className="card-elevated text-center p-6">
-          <div className="text-3xl font-bold text-green-500">{reports.filter(r => r.status === 'fixed').length}</div>
-          <div className="text-muted-foreground">{t('statusFixed')}</div>
-        </Card>
+        <motion.div 
+          className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
+          <Card className="card-gradient text-center p-8 hover:scale-105 transition-all duration-300 group">
+            <div className="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+              <AlertTriangle className="w-8 h-8 text-red-500" />
+            </div>
+            <div className="text-5xl font-bold text-red-500 mb-3">{reports.filter(r => r.status === 'pending').length}</div>
+            <div className="text-lg font-semibold text-muted-foreground">{t('statusPending')}</div>
+          </Card>
+          
+          <Card className="card-gradient text-center p-8 hover:scale-105 transition-all duration-300 group">
+            <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+              <Clock className="w-8 h-8 text-orange-500" />
+            </div>
+            <div className="text-5xl font-bold text-orange-500 mb-3">{reports.filter(r => r.status === 'inProgress').length}</div>
+            <div className="text-lg font-semibold text-muted-foreground">{t('statusInProgress')}</div>
+          </Card>
+          
+          <Card className="card-gradient text-center p-8 hover:scale-105 transition-all duration-300 group">
+            <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+              <CheckCircle className="w-8 h-8 text-green-500" />
+            </div>
+            <div className="text-5xl font-bold text-green-500 mb-3">{reports.filter(r => r.status === 'fixed').length}</div>
+            <div className="text-lg font-semibold text-muted-foreground">{t('statusFixed')}</div>
+          </Card>
+        </motion.div>
       </div>
     </div>
   );

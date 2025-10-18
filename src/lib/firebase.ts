@@ -4,12 +4,13 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD0gwwplo1kyAmak8vH8_qmFbe5WVknKm8",
-  authDomain: "pothole-watch.firebaseapp.com",
-  projectId: "pothole-watch",
-  storageBucket: "pothole-watch.appspot.com",
-  messagingSenderId: "3775813143",
-  appId: "1:3775813143:web:dc1b9d043ec7a42a936e52",
+  apiKey: "AIzaSyAK4tn44JKDBQTrvVZbSyyJGDcWa0e0hGU",
+  authDomain: "city-care-mind-grid.firebaseapp.com",
+  projectId: "city-care-mind-grid",
+  storageBucket: "city-care-mind-grid.firebasestorage.app",
+  messagingSenderId: "751500345687",
+  appId: "1:751500345687:web:fae20c693dd80308a0fe12",
+  measurementId: "G-MGRT3TTF8N"
 };
 
 // Initialize Firebase - reuse existing app during HMR

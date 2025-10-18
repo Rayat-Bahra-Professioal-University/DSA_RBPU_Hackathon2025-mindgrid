@@ -9,12 +9,12 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
+import SecretAdmin from "./pages/SecretAdmin";
 import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import About from "./pages/About";
 import Report from "./pages/Report";
 import Map from "./pages/Map";
-import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,20 +22,20 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+      <BrowserRouter>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
           <div className="flex flex-col min-h-screen">
             <Navbar />
             <main className="flex-1">
               <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/citycare-admin-secure" element={<SecretAdmin />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/report" element={<Report />} />
                 <Route path="/map" element={<Map />} />
-                <Route path="/contact" element={<Contact />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
@@ -44,8 +44,8 @@ const App = () => (
             </main>
             <Footer />
           </div>
-        </BrowserRouter>
-      </AuthProvider>
+        </AuthProvider>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );

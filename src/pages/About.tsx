@@ -5,9 +5,9 @@ export default function About() {
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-center mb-6">About Pothole Watch</h1>
-        <p className="text-xl text-center text-muted-foreground mb-16 leading-relaxed">
-          A citizen-driven platform to improve road safety and infrastructure maintenance
+        <h1 className="text-center mb-6">About CityCare</h1>
+        <p className="text-lg text-center text-muted-foreground mb-12 leading-relaxed">
+          A citizen-driven platform to improve city infrastructure and urban maintenance
         </p>
 
         {/* Mission */}
@@ -18,10 +18,10 @@ export default function About() {
             </div>
             <div>
               <h2 className="mb-4">Our Mission</h2>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                We believe that safe roads are a fundamental right for every citizen. Pothole Watch empowers 
-                communities to take an active role in identifying and reporting road hazards, creating a 
-                transparent system that holds authorities accountable for maintaining our infrastructure.
+              <p className="text-base text-muted-foreground leading-relaxed">
+                We believe that clean, safe, and well-maintained cities are a fundamental right for every citizen. CityCare empowers 
+                communities to take an active role in identifying and reporting city problems, creating a 
+                transparent system that holds authorities accountable for maintaining our urban infrastructure.
               </p>
             </div>
           </div>
@@ -35,10 +35,10 @@ export default function About() {
             </div>
             <div>
               <h2 className="mb-4">The Problem</h2>
-              <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                Potholes are more than just an inconvenience—they're a serious safety hazard that causes:
+              <p className="text-base text-muted-foreground leading-relaxed mb-4">
+                City problems like potholes, garbage, and poor drainage are more than just inconveniences—they're serious issues that cause:
               </p>
-              <ul className="space-y-2 text-lg text-muted-foreground">
+              <ul className="space-y-2 text-base text-muted-foreground">
                 <li className="flex items-start gap-2">
                   <span className="text-destructive">•</span>
                   <span>Thousands of accidents and injuries every year</span>
@@ -68,10 +68,10 @@ export default function About() {
             </div>
             <div>
               <h2 className="mb-4">How We Help</h2>
-              <p className="text-lg text-muted-foreground leading-relaxed mb-4">
-                Pothole Watch creates a direct line of communication between citizens and authorities:
+              <p className="text-base text-muted-foreground leading-relaxed mb-4">
+                CityCare creates a direct line of communication between citizens and authorities:
               </p>
-              <ul className="space-y-2 text-lg text-muted-foreground">
+              <ul className="space-y-2 text-base text-muted-foreground">
                 <li className="flex items-start gap-2">
                   <span className="text-success">✓</span>
                   <span>Quick and easy reporting with photos and location data</span>
@@ -101,7 +101,7 @@ export default function About() {
             </div>
             <div>
               <h2 className="mb-4 text-primary-foreground">Get Involved</h2>
-              <p className="text-lg leading-relaxed opacity-90">
+              <p className="text-base leading-relaxed opacity-90">
                 Every report you submit helps make our roads safer. Join thousands of concerned citizens 
                 who are actively working to improve their communities. Together, we can fix the roads and 
                 save lives.
